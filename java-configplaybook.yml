@@ -1,6 +1,6 @@
 ---
 - name: Install Java and Maven
-- host: java
+  host: java
   become: true
   tasks:
     - name: Update Instance
