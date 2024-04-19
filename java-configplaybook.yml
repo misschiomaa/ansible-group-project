@@ -1,6 +1,5 @@
----
 - name: Install Java and Maven
-  host: java
+  hosts: jenkins
   become: true
   tasks:
     - name: Update Instance
@@ -8,34 +7,34 @@
         cmd: sudo yum update -y
 
     - name: Install Java
-      package:
+      yum:
         name: java-11-openjdk-devel
         state: present
 
     - name: Download Apache Maven
       get_url:
         url: https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
-        dest: /tmp/apache-maven-3.9.6-bin.tar.gz
+        dest: /home/centos/apache-maven-3.9.6-bin.tar.gz
 
-    - name: Extract Apache Maven
-      ansible.builtin.unarchive:
-        src: /tmp/apache-maven-3.9.6-bin.tar.gz
-        dest: /opt
+    - name: Extract Apache Maven archive
+      command:
+        cmd: "sudo tar xzf apache-maven-3.9.6-bin.tar.gz -C /opt"
+
+    - name: Configure Maven environment variables
+      file:
+        path: /etc/profile.d/maven.sh
+        state: touch
 
     - name: Configure Maven environment variables
       lineinfile:
-        path: /etc/profile.d/maven.sh
-        line: "{{ item }}"
-        insertafter: EOF
-        state: present
-      loop:
-        - "export M2_HOME=/opt/apache-maven-3.9.6"
-        - "export PATH=${M2_HOME}/bin:${PATH}"
+        dest: /etc/profile.d/maven.sh
+        line: |
+          export M2_HOME=/opt/apache-maven-3.9.6
+          export PATH=${M2_HOME}/bin:${PATH}
 
     - name: Make Maven script executable
-      file:
-        path: /etc/profile.d/maven.sh
-        mode: "a+x"
+      command:
+        cmd: "sudo chmod +x /etc/profile.d/maven.sh"
 
     - name: Source Maven environment variables
       shell: source /etc/profile.d/maven.sh
