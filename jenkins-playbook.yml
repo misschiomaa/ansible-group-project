@@ -1,5 +1,7 @@
 ---
 - name: Install Jenkins
+- host: jenkins  
+  
   become: true
   tasks:
     - name: Install Jenkins
