@@ -1,0 +1,14 @@
+---
+- name: Install Jenkins
+  become: true
+  tasks:
+    - name: Install Jenkins
+      yum:
+        name: jenkins
+        state: present
+
+    -name: Enable and start jenkins
+      service:
+        name: jenkins
+        state: started
+        enabled: yes

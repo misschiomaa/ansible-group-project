@@ -1,0 +1,40 @@
+---
+- name: Install Java and Maven
+  become: true
+  tasks:
+    - name: Update Instance
+      shell:
+        cmd: sudo yum update -y
+
+    - name: Install Java
+      package:
+        name: java-11-openjdk-devel
+        state: present
+
+    - name: Download Apache Maven
+      get_url:
+        url: https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
+        dest: /tmp/apache-maven-3.9.6-bin.tar.gz
+
+    - name: Extract Apache Maven
+      ansible.builtin.unarchive:
+        src: /tmp/apache-maven-3.9.6-bin.tar.gz
+        dest: /opt
+
+    - name: Configure Maven environment variables
+      lineinfile:
+        path: /etc/profile.d/maven.sh
+        line: "{{ item }}"
+        insertafter: EOF
+        state: present
+      loop:
+        - "export M2_HOME=/opt/apache-maven-3.9.6"
+        - "export PATH=${M2_HOME}/bin:${PATH}"
+
+    - name: Make Maven script executable
+      file:
+        path: /etc/profile.d/maven.sh
+        mode: "a+x"
+
+    - name: Source Maven environment variables
+      shell: source /etc/profile.d/maven.sh
