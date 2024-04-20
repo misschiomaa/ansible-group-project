@@ -1,15 +1,37 @@
----
-- name: Install Jenkins
-- host: jenkins  
-  
+- name: Install Java and Maven
+  hosts: jenkins
   become: true
   tasks:
+    - name: Update Instance
+      shell:
+        cmd: sudo yum update -y
+
+    - name: Download Apache Maven
+      get_url:
+        url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: Import Jenkins repository GPG key
+      command:
+        cmd: "sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key"
+
+    - name: Install Java and fontconfig
+      yum:
+        name:
+          - fontconfig
+          - java-11-openjdk
+        state: present
+
     - name: Install Jenkins
       yum:
         name: jenkins
         state: present
 
-    -name: Enable and start jenkins
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start Jenkins service
       service:
         name: jenkins
         state: started
