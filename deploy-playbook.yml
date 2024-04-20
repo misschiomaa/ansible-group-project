@@ -1,4 +1,4 @@
-- name: Install Java and Maven
+- name: Install Java and Maven yum
   hosts: nodeslave
   become: true
   tasks:
