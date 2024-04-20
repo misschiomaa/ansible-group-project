@@ -1,5 +1,5 @@
 - name: Install Java and Maven
-  hosts: nodeslave
+  hosts: awsnode
   become: true
   tasks:
     - name: Update Instance
