@@ -1,0 +1,40 @@
+name: Install Java and Maven
+  hosts: nodeslave
+  become: true
+  tasks:
+    - name: Update Instance
+      shell:
+        cmd: sudo yum update -y
+
+    - name: Install Java
+      yum:
+        name: java-11-openjdk-devel
+        state: present
+
+    - name: Download Apache Maven
+      get_url:
+        url: https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
+        dest: /home/centos/apache-maven-3.9.6-bin.tar.gz
+
+    - name: Extract Apache Maven archive
+      command:
+        cmd: "sudo tar xzf apache-maven-3.9.6-bin.tar.gz -C /opt"
+
+    - name: Configure Maven environment variables
+      file:
+        path: /etc/profile.d/maven.sh
+        state: touch
+
+    - name: Configure Maven environment variables
+      lineinfile:
+        dest: /etc/profile.d/maven.sh
+        line: |
+          export M2_HOME=/opt/apache-maven-3.9.6
+          export PATH=${M2_HOME}/bin:${PATH}
+
+    - name: Make Maven script executable
+      command:
+        cmd: "sudo chmod +x /etc/profile.d/maven.sh"
+
+    - name: Source Maven environment variables
+      shell: source /etc/profile.d/maven.sh
